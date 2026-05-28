@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LuxBid Pi Payment</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+</head>
+<body style="font-family:sans-serif;text-align:center;padding-top:50px;">
+
+<h1>LuxBid</h1>
+<p>Pi Network Test Payment</p>
+
+<button onclick="login()">Login with Pi</button>
+<br><br>
+<button onclick="pay()">Pay 1 Pi</button>
+
+<script>
+Pi.init({ version: "2.0", sandbox: true });
+
+async function login() {
+  try {
+    const scopes = ['payments','username'];
+    const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
+    alert("Welcome " + auth.user.username);
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function onIncompletePaymentFound(payment) {
+  console.log(payment);
+}
+
+async function pay() {
+  try {
+    const paymentData = {
+      amount: 1,
+      memo: "LuxBid Test Payment",
+      metadata: { orderId: "12345" }
+    };
+
+    const paymentCallbacks = {
+      onReadyForServerApproval: function(paymentId) {
+        console.log(paymentId);
+      },
+      onReadyForServerCompletion: function(paymentId, txid) {
+        console.log(paymentId, txid);
+      },
+      onCancel: function(paymentId) {
+        console.log(paymentId);
+      },
+      onError: function(error, payment) {
+        console.log(error);
+      }
+    };
+
+    await Pi.createPayment(paymentData, paymentCallbacks);
+  } catch(e) {
+    console.error(e);
+  }
+}
+</script>
+
+</body>
+</html>
