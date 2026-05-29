@@ -1,100 +1,41 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>LuxBid</title>
-
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 
-<body style="font-family:Arial;text-align:center;padding-top:60px;">
+<body>
 
-  <h1>LuxBid</h1>
+<h1>LuxBid</h1>
 
-  <button id="loginBtn">Login with Pi</button>
+<button id="login">Login</button>
 
-  <br><br>
+<script>
 
-  <button id="payBtn">Pay 1 Pi</button>
+Pi.init({ version: "2.0", sandbox: true });
 
-  <script>
+document.getElementById("login").onclick = async function () {
 
-    window.onload = function () {
+  try {
 
-      Pi.init({
-        version: "2.0",
-        sandbox: true
-      });
+    const user = await Pi.authenticate(
+      ["username"],
+      function() {}
+    );
 
-      document.getElementById("loginBtn").addEventListener("click", async function () {
+    alert(user.user.username);
 
-        try {
+  } catch(e) {
 
-          const scopes = ['payments', 'username'];
+    alert("Error");
 
-          const auth = await Pi.authenticate(scopes, function(payment) {
-            console.log(payment);
-          });
+    console.log(e);
 
-          alert("Welcome " + auth.user.username);
+  }
 
-        } catch (e) {
+};
 
-          alert("Login Failed");
-
-          console.log(e);
-
-        }
-
-      });
-
-      document.getElementById("payBtn").addEventListener("click", async function () {
-
-        try {
-
-          await Pi.createPayment({
-
-            amount: 1,
-            memo: "LuxBid Test Payment",
-            metadata: { product: "LuxBid" }
-
-          }, {
-
-            onReadyForServerApproval: function(paymentId) {
-              console.log(paymentId);
-            },
-
-            onReadyForServerCompletion: function(paymentId, txid) {
-              console.log(paymentId, txid);
-            },
-
-            onCancel: function(paymentId) {
-              console.log(paymentId);
-            },
-
-            onError: function(error) {
-              console.log(error);
-            }
-
-          });
-
-        } catch (e) {
-
-          alert("Payment Failed");
-
-          console.log(e);
-
-        }
-
-      });
-
-    };
-
-  </script>
+</script>
 
 </body>
-
 </html>
