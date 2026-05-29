@@ -71,10 +71,13 @@
         memo: "LuxBid Test Payment",
         metadata: { orderId: "001" }
       }, {
-        onReadyForServerApproval: function(paymentId) {
-          document.getElementById("status").innerText = 
-            "جاري الموافقة...";
-          console.log("Payment ID:", paymentId);
+      onReadyForServerApproval: async function(paymentId) {
+  await fetch("https://luxbid-pi.onrender.com/approve", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({paymentId})
+  });
+},
         },
         onReadyForServerCompletion: function(paymentId, txid) {
           document.getElementById("status").innerText = 
