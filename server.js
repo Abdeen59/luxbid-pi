@@ -36,7 +36,7 @@ app.post('/complete', async (req, res) => {
     {
       method: 'POST',
       headers: {
-        'Authorization': 'Key YOUR_PI_API_KEY',
+        'Authorization': 'Keye ju2vos7w4tyj5wabglmwp5sxrjc0ltetksp7zjaa2mt4bsgvqlwa7z9d1i05gcb ',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ txid })
