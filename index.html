@@ -1,111 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
-    }
-    button {
-      padding: 15px 30px;
-      margin: 10px;
-      font-size: 18px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    #loginBtn {
-      background-color: #7B3FA0;
-      color: white;
-      border: none;
-    }
-    #payBtn {
-      background-color: #F0A500;
-      color: white;
-      border: none;
-      display: none;
-    }
-    #status {
-      margin-top: 20px;
-      font-size: 16px;
-      color: green;
-    }
+    body { font-family: Arial; text-align: center; padding: 40px; }
+    button { padding: 15px 30px; margin: 10px; font-size: 18px; border-radius: 10px; cursor: pointer; border: none; }
+    #loginBtn { background-color: #7B3FA0; color: white; }
+    #payBtn { background-color: #F0A500; color: white; display: none; }
+    #status { margin-top: 20px; font-size: 16px; color: green; }
   </style>
 </head>
-
 <body>
-
   <h1>LuxBid</h1>
   <p>Welcome to LuxBid on Pi Network</p>
-
   <button id="loginBtn">Login with Pi</button>
   <button id="payBtn">Pay 1 Pi</button>
-
   <div id="status"></div>
 
   <script>
-  try {
-  Pi.init({ version: "2.0", sandbox: true });
-  document.getElementById("status").innerText = "✅ Pi SDK loaded";
-} catch(e) {
-  document.getElementById("status").innerText = "❌ Pi SDK Error: " + e.message;
-}
-
-    // زر Login
-    document.getElementById("loginBtn").onclick = async function() {
+    window.onload = function() {
       try {
-        const user = await Pi.authenticate(
-          ["username", "payments"],
-          function() {}
-        );
-        document.getElementById("status").innerText = 
-          "مرحباً: " + user.user.username;
-        document.getElementById("payBtn").style.display = "inline-block";
-        document.getElementById("loginBtn").style.display = "none";
+        Pi.init({ version: "2.0", sandbox: true });
+        document.getElementById("status").innerText = "✅ Pi SDK loaded";
       } catch(e) {
-        document.getElementById("status").innerText = "خطأ في Login";
-        console.log(e);
+        document.getElementById("status").innerText = "❌ Error: " + e.message;
       }
     };
 
-    // زر الدفع
+    document.getElementById("loginBtn").onclick = async function() {
+      try {
+        const user = await Pi.authenticate(["username", "payments"], function() {});
+        document.getElementById("status").innerText = "مرحباً: " + user.user.username;
+        document.getElementById("payBtn").style.display = "inline-block";
+        document.getElementById("loginBtn").style.display = "none";
+      } catch(e) {
+        document.getElementById("status").innerText = "❌ Login Error: " + e.message;
+      }
+    };
+
     document.getElementById("payBtn").onclick = function() {
       Pi.createPayment({
         amount: 1,
         memo: "LuxBid Test Payment",
         metadata: { orderId: "001" }
       }, {
-      onReadyForServerApproval: async function(paymentId) {
-  await fetch("https://luxbid-pi.onrender.com/approve", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({paymentId})
-  });
-},
+        onReadyForServerApproval: async function(paymentId) {
+          await fetch("https://luxbid-pi.onrender.com/approve", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({paymentId})
+          });
         },
-      onReadyForServerCompletion: async function(paymentId, txid) {
-  await fetch("https://luxbid-pi.onrender.com/complete", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({paymentId, txid})
-  });
-  document.getElementById("status").innerText = 
-    "✅ تمت عملية الدفع بنجاح!";
-},
+        onReadyForServerCompletion: async function(paymentId, txid) {
+          await fetch("https://luxbid-pi.onrender.com/complete", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({paymentId, txid})
+          });
+          document.getElementById("status").innerText = "✅ تمت عملية الدفع بنجاح!";
         },
-        onCancel: function(paymentId) {
-          document.getElementById("status").innerText = 
-            "❌ تم إلغاء الدفع";
+        onCancel: function() {
+          document.getElementById("status").innerText = "❌ تم إلغاء الدفع";
         },
-        onError: function(error) {
-          document.getElementById("status").innerText = 
-            "⚠️ خطأ في الدفع";
-          console.log(error);
+        onError: function(e) {
+          document.getElementById("status").innerText = "⚠️ خطأ: " + e.message;
         }
       });
     };
   </script>
-
 </body>
 </html>
