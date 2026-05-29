@@ -79,10 +79,15 @@
   });
 },
         },
-        onReadyForServerCompletion: function(paymentId, txid) {
-          document.getElementById("status").innerText = 
-            "✅ تمت عملية الدفع بنجاح!";
-          console.log("TX ID:", txid);
+      onReadyForServerCompletion: async function(paymentId, txid) {
+  await fetch("https://luxbid-pi.onrender.com/complete", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({paymentId, txid})
+  });
+  document.getElementById("status").innerText = 
+    "✅ تمت عملية الدفع بنجاح!";
+},
         },
         onCancel: function(paymentId) {
           document.getElementById("status").innerText = 
