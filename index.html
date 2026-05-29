@@ -62,7 +62,14 @@
           document.getElementById("status").innerText = "✅ تمت عملية الدفع بنجاح!";
         },
         onCancel: function() {
-          document.getElementById("status").innerText = "❌ تم إلغاء الدفع";
+          document.getElementById("status").innerText = "❌ تم إلغاء الدفع";onCancel: async function(paymentId) {
+  await fetch("https://luxbid-pi.onrender.com/cancel", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({paymentId})
+  });
+  document.getElementById("status").innerText = "❌ تم إلغاء الدفع";
+},
         },
         onError: function(e) {
           document.getElementById("status").innerText = "⚠️ خطأ: " + e.message;
