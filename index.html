@@ -45,7 +45,12 @@
   <div id="status"></div>
 
   <script>
-    Pi.init({ version: "2.0", sandbox: true });
+  try {
+  Pi.init({ version: "2.0", sandbox: true });
+  document.getElementById("status").innerText = "✅ Pi SDK loaded";
+} catch(e) {
+  document.getElementById("status").innerText = "❌ Pi SDK Error: " + e.message;
+}
 
     // زر Login
     document.getElementById("loginBtn").onclick = async function() {
