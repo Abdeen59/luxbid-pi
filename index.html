@@ -9,7 +9,99 @@
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 
-<body style="font-family:sans-serif;text-align:center;padding-top:50px;">
+<body <h1>LuxBid</h1>
+
+<p>Welcome to LuxBid on Pi Network</p>
+
+<button id="loginBtn"
+style="padding:15px 30px;
+background:#6f2dbd;
+color:white;
+border:none;
+border-radius:10px;
+font-size:20px;">
+Login with Pi
+</button>
+
+<br><br>
+
+<button id="payBtn"
+style="padding:15px 30px;
+background:green;
+color:white;
+border:none;
+border-radius:10px;
+font-size:20px;">
+Pay 1 Pi
+</button>
+
+<script>
+Pi.init({ version: "2.0" });
+
+let currentUser;
+
+document.getElementById("loginBtn").addEventListener("click", async () => {
+
+  try {
+
+    const scopes = ['username', 'payments'];
+
+    const auth = await Pi.authenticate(scopes, function(payment) {
+      console.log(payment);
+    });
+
+    currentUser = auth.user;
+
+    alert("Welcome " + currentUser.username);
+
+  } catch (err) {
+
+    alert("Login Failed");
+
+    console.error(err);
+  }
+
+});
+
+document.getElementById("payBtn").addEventListener("click", async () => {
+
+  try {
+
+    const paymentData = {
+      amount: 1,
+      memo: "LuxBid Test Payment",
+      metadata: { orderId: "001" }
+    };
+
+    const payment = await Pi.createPayment(
+      paymentData,
+      {
+        onReadyForServerApproval: function(paymentId) {
+          console.log(paymentId);
+        },
+
+        onReadyForServerCompletion: function(paymentId, txid) {
+          console.log(paymentId, txid);
+        },
+
+        onCancel: function(paymentId) {
+          alert("Payment Cancelled");
+        },
+
+        onError: function(error, payment) {
+          console.error(error);
+        }
+      }
+    );
+
+  } catch (err) {
+
+    console.error(err);
+
+  }
+
+});
+</script> ">
 
   <h1>LuxBid</h1>
 
