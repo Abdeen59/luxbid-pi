@@ -1,102 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>LuxBid</title>
 
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 
-<body style="font-family:sans-serif;text-align:center;padding-top:50px;">
+<body style="font-family:Arial;text-align:center;padding-top:60px;">
 
   <h1>LuxBid</h1>
 
-  <p>Welcome to LuxBid on Pi Network</p>
-
-  <button onclick="login()">Login with Pi</button>
+  <button id="loginBtn">Login with Pi</button>
 
   <br><br>
 
-  <button onclick="pay()">Pay 1 Pi</button>
+  <button id="payBtn">Pay 1 Pi</button>
 
   <script>
 
-    Pi.init({
-      version: "2.0",
-      sandbox: true
-    });
+    window.onload = function () {
 
-    async function login() {
+      Pi.init({
+        version: "2.0",
+        sandbox: true
+      });
 
-      try {
+      document.getElementById("loginBtn").addEventListener("click", async function () {
 
-        const scopes = ['payments', 'username'];
+        try {
 
-        const auth = await Pi.authenticate(
-          scopes,
-          onIncompletePaymentFound
-        );
+          const scopes = ['payments', 'username'];
 
-        alert("Welcome " + auth.user.username);
+          const auth = await Pi.authenticate(scopes, function(payment) {
+            console.log(payment);
+          });
 
-      } catch (err) {
+          alert("Welcome " + auth.user.username);
 
-        console.error(err);
+        } catch (e) {
 
-      }
+          alert("Login Failed");
 
-    }
-
-    function onIncompletePaymentFound(payment) {
-
-      console.log(payment);
-
-    }
-
-    async function pay() {
-
-      const paymentData = {
-        amount: 1,
-        memo: "LuxBid Test Payment",
-        metadata: { orderId: "12345" }
-      };
-
-      const paymentCallbacks = {
-
-        onReadyForServerApproval: function(paymentId) {
-
-          console.log(paymentId);
-
-        },
-
-        onReadyForServerCompletion: function(paymentId, txid) {
-
-          console.log(paymentId, txid);
-
-        },
-
-        onCancel: function(paymentId) {
-
-          console.log(paymentId);
-
-        },
-
-        onError: function(error) {
-
-          console.log(error);
+          console.log(e);
 
         }
 
-      };
+      });
 
-      await Pi.createPayment(
-        paymentData,
-        paymentCallbacks
-      );
+      document.getElementById("payBtn").addEventListener("click", async function () {
 
-    }
+        try {
+
+          await Pi.createPayment({
+
+            amount: 1,
+            memo: "LuxBid Test Payment",
+            metadata: { product: "LuxBid" }
+
+          }, {
+
+            onReadyForServerApproval: function(paymentId) {
+              console.log(paymentId);
+            },
+
+            onReadyForServerCompletion: function(paymentId, txid) {
+              console.log(paymentId, txid);
+            },
+
+            onCancel: function(paymentId) {
+              console.log(paymentId);
+            },
+
+            onError: function(error) {
+              console.log(error);
+            }
+
+          });
+
+        } catch (e) {
+
+          alert("Payment Failed");
+
+          console.log(e);
+
+        }
+
+      });
+
+    };
 
   </script>
 
