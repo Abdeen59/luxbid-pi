@@ -16,7 +16,7 @@ app.post('/approve', async (req, res) => {
     {
       method: 'POST',
       headers: {
-        'Authorization': 'Key YOUR_PI_API_KEY',
+        'Authorization': `Key ${process.env.PI_API_KEY}`,
         'Content-Type': 'application/json'
       }
     }
