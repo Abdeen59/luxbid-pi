@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -9,7 +10,9 @@
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 
-<body <h1>LuxBid</h1>
+<body style="font-family:sans-serif;text-align:center;padding-top:50px;">
+
+<h1>LuxBid</h1>
 
 <p>Welcome to LuxBid on Pi Network</p>
 
@@ -73,7 +76,7 @@ document.getElementById("payBtn").addEventListener("click", async () => {
       metadata: { orderId: "001" }
     };
 
-    const payment = await Pi.createPayment(
+    await Pi.createPayment(
       paymentData,
       {
         onReadyForServerApproval: function(paymentId) {
@@ -101,46 +104,7 @@ document.getElementById("payBtn").addEventListener("click", async () => {
   }
 
 });
-</script> ">
-
-  <h1>LuxBid</h1>
-
-  <p>Welcome to LuxBid on Pi Network</p>
-
-  <button id="loginBtn"
-    style="padding:15px 30px;
-    background:#6f2dbd;
-    color:white;
-    border:none;
-    border-radius:10px;
-    font-size:20px;">
-    Login with Pi
-  </button>
-
-  <script>
-    Pi.init({ version: "2.0" });
-
-    document.getElementById("loginBtn").addEventListener("click", async () => {
-
-      try {
-
-        const scopes = ['username', 'payments'];
-
-        const auth = await Pi.authenticate(scopes, function(payment) {
-          console.log(payment);
-        });
-
-        alert("Welcome " + auth.user.username);
-
-      } catch (err) {
-
-        alert("Login Failed");
-
-        console.error(err);
-      }
-
-    });
-  </script>
+</script>
 
 </body>
 </html>
