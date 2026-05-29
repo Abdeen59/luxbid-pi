@@ -2,40 +2,97 @@
 <html>
 <head>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    button {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 18px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    #loginBtn {
+      background-color: #7B3FA0;
+      color: white;
+      border: none;
+    }
+    #payBtn {
+      background-color: #F0A500;
+      color: white;
+      border: none;
+      display: none;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 16px;
+      color: green;
+    }
+  </style>
 </head>
 
 <body>
 
-<h1>LuxBid</h1>
+  <h1>LuxBid</h1>
+  <p>Welcome to LuxBid on Pi Network</p>
 
-<button id="login">Login</button>
+  <button id="loginBtn">Login with Pi</button>
+  <button id="payBtn">Pay 1 Pi</button>
 
-<script>
+  <div id="status"></div>
 
-Pi.init({ version: "2.0", sandbox: true });
+  <script>
+    Pi.init({ version: "2.0", sandbox: true });
 
-document.getElementById("login").onclick = async function () {
+    // زر Login
+    document.getElementById("loginBtn").onclick = async function() {
+      try {
+        const user = await Pi.authenticate(
+          ["username", "payments"],
+          function() {}
+        );
+        document.getElementById("status").innerText = 
+          "مرحباً: " + user.user.username;
+        document.getElementById("payBtn").style.display = "inline-block";
+        document.getElementById("loginBtn").style.display = "none";
+      } catch(e) {
+        document.getElementById("status").innerText = "خطأ في Login";
+        console.log(e);
+      }
+    };
 
-  try {
-
-    const user = await Pi.authenticate(
-      ["username"],
-      function() {}
-    );
-
-    alert(user.user.username);
-
-  } catch(e) {
-
-    alert("Error");
-
-    console.log(e);
-
-  }
-
-};
-
-</script>
+    // زر الدفع
+    document.getElementById("payBtn").onclick = function() {
+      Pi.createPayment({
+        amount: 1,
+        memo: "LuxBid Test Payment",
+        metadata: { orderId: "001" }
+      }, {
+        onReadyForServerApproval: function(paymentId) {
+          document.getElementById("status").innerText = 
+            "جاري الموافقة...";
+          console.log("Payment ID:", paymentId);
+        },
+        onReadyForServerCompletion: function(paymentId, txid) {
+          document.getElementById("status").innerText = 
+            "✅ تمت عملية الدفع بنجاح!";
+          console.log("TX ID:", txid);
+        },
+        onCancel: function(paymentId) {
+          document.getElementById("status").innerText = 
+            "❌ تم إلغاء الدفع";
+        },
+        onError: function(error) {
+          document.getElementById("status").innerText = 
+            "⚠️ خطأ في الدفع";
+          console.log(error);
+        }
+      });
+    };
+  </script>
 
 </body>
 </html>
