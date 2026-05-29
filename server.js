@@ -46,7 +46,22 @@ app.post('/complete', async (req, res) => {
   const data = await response.json();
   res.json(data);
 });
-
+// إلغاء الدفعات المعلقة
+app.post('/cancel', async (req, res) => {
+  const { paymentId } = req.body;
+  const response = await fetch(
+    `https://api.minepi.com/v2/payments/${paymentId}/cancel`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Key ${process.env.PI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+  const data = await response.json();
+  res.json(data);
+});
 app.listen(3000, () => {
   console.log('Server running on port 3000');
 });
