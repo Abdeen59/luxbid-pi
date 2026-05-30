@@ -1,80 +1,84 @@
 const fetch = require('node-fetch');
 const express = require('express');
 const cors = require('cors');
-const app = express();
 
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-// موافقة على الدفع
+app.get('/', (req, res) => {
+  res.send('LuxBid Server is running!');
+});
+
+app.get('/pending', (req, res) => {
+  res.json({ message: 'Server is working!' });
+});
+
 app.post('/approve', async (req, res) => {
   const { paymentId } = req.body;
-  console.log('Approving payment:', paymentId);
-  const response = await fetch(
-    `https://api.minepi.com/v2/payments/${paymentId}/approve`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Key ${process.env.PI_API_KEY}`,
-        'Content-Type': 'application/json'
+  console.log('Approving:', paymentId);
+  try {
+    const response = await fetch(
+      `https://api.minepi.com/v2/payments/${paymentId}/approve`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Key ${process.env.PI_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
       }
-    }
-  );
-  const data = await response.json();
-  res.json(data);
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
-// إتمام الدفع
 app.post('/complete', async (req, res) => {
   const { paymentId, txid } = req.body;
-  console.log('Completing payment:', paymentId);
-  const response = await fetch(
-    `https://api.minepi.com/v2/payments/${paymentId}/complete`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Key ${process.env.PI_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ txid })
-    }
-  );
-  const data = await response.json();
-  res.json(data);
+  console.log('Completing:', paymentId);
+  try {
+    const response = await fetch(
+      `https://api.minepi.com/v2/payments/${paymentId}/complete`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Key ${process.env.PI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ txid })
+      }
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
-// إلغاء الدفع
 app.post('/cancel', async (req, res) => {
   const { paymentId } = req.body;
-  console.log('Cancelling payment:', paymentId);
-  const response = await fetch(
-    `https://api.minepi.com/v2/payments/${paymentId}/cancel`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Key ${process.env.PI_API_KEY}`,
-        'Content-Type': 'application/json'
+  console.log('Cancelling:', paymentId);
+  try {
+    const response = await fetch(
+      `https://api.minepi.com/v2/payments/${paymentId}/cancel`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Key ${process.env.PI_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
       }
-    }
-  );
-  const data = await response.json();
-  res.json(data);
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
-// جلب الدفعات المعلقة
-app.get('/pending', async (req, res) => {
-  const response = await fetch(
-    'https://api.minepi.com/v2/payments?payment_type=incomplete',
-    {
-      headers: {
-        'Authorization': `Key ${process.env.PI_API_KEY}`
-      }
-    }
-  );
-  const data = await response.json();
-  res.json(data);
-});
-
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
