@@ -79,6 +79,28 @@ app.post('/cancel', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+// إتمام الدفعة المعلقة مباشرة
+app.get('/fix', async (req, res) => {
+  const paymentId = req.query.pid;
+  const txid = req.query.txid;
+  try {
+    const response = await fetch(
+      `https://api.minepi.com/v2/payments/${paymentId}/complete`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Key ${process.env.PI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ txid })
+      }
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
