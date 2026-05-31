@@ -324,7 +324,7 @@
       <h1>لوحة التحكم</h1>
       <p>أدخل كلمة المرور للدخول</p>
       <input type="password" class="login-input" id="passInput" placeholder="••••••••" onkeypress="if(event.key==='Enter') checkPass()">
-      <button class="login-btn" onclick="checkPass()">دخول</button>
+      <button class="login-btn" onclick="alert(document.getElementById('passInput').value)">دخول</button>
       <div class="login-error" id="loginError">كلمة المرور غير صحيحة</div>
     </div>
   </div>
